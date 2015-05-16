@@ -33,12 +33,15 @@ def main() :
             while True :
                 msg = p.stderr.readline()
                 if msg == '' :
+                    p.wait()
                     raise PipeError, 'Process terminated itself'
                 _sys.stderr.write(msg)
                 for pat_str in _KILL_MSG_PATTERNS :
                     if pat_str in msg :
                         # problem -- we need to terminate the process tree
                         _os.killpg(p.pid, _signal.SIGTERM)
+                        # get the status code
+                        p.wait()
                         raise PipeError, 'Terminate process due to detected error'
         except :
             exception('Pipe failed.')
@@ -46,5 +49,5 @@ def main() :
         _time.sleep(_SLEEP_SECS)
 
 if __name__ == '__main__' :
-    _log.basicConfig(level = _log.INFO, format = '[%(levelname)-8s] %(message)s')
+    _log.basicConfig(level = _log.INFO, format = '%(asctime)s [%(levelname)-8s] %(message)s')
     main()
