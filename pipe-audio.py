@@ -12,7 +12,7 @@ from logging        import info, warn, error, exception
 
 _IN_DEV     = 'plughw:1,0'
 _OUT_DEV    = 'ue'
-_CMD        = 'arecord -D %s -f dat | aplay -D %s' % (_IN_DEV, _OUT_DEV)
+_CMD        = 'arecord -B 20000 -D %s -f dat | aplay -B 20000 -D %s' % (_IN_DEV, _OUT_DEV)
 _SLEEP_SECS = 15
 _HIBERNATE_SECS = 3600 * 4
 
@@ -47,7 +47,11 @@ def main() :
 
             def hibernate_signal(signum, frame) :
                 sleeper.set_hibernate()
-                _os.killpg(p.pid, _signal.SIGTERM)
+                try :
+                    _os.killpg(p.pid, _signal.SIGTERM)
+                except :
+                    # don't worry if this fails
+                    pass
             _signal.signal(_signal.SIGUSR1, hibernate_signal)
 
             # read from stderr and 'tee' it out, intercepting useful info
